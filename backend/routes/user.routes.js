@@ -12,4 +12,10 @@ router.post(
   userController.createUserController
 )
 
+router.post("/login",
+  body("email").isEmail().withMessage("Email is invalid"),
+  body("password").isLength({ min: 3  }).withMessage("Password must be at least 2 characters long"),
+  userController.loginUserController
+)
+
 export default router;
