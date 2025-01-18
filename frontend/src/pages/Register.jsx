@@ -8,16 +8,14 @@ const Register = () => {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const submitHandler = () => {
-        axios.post(
-            "/login",
-            (email, password).then((res) => {
-                console.log(res.data);
-                navigate("/");
-            }).catch((err) => {
-                console.log(err);
-            })
-        );
+    const submitHandler = (e) => {
+        e.preventDefault();
+        axios.post('user/register',{email, password}).then((res) => {
+            console.log(res.data);
+            navigate("/");
+        }).catch((err) => {
+            console.log(err);
+        })
     };
 
     return (
