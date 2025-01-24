@@ -1,5 +1,4 @@
 import axios from '../config/axios';
-import React from 'react'
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -10,11 +9,11 @@ const Register = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
-        axios.post('user/register',{email, password}).then((res) => {
+        axios.post('/user/register',{email, password}).then((res) => {
             console.log(res.data);
             navigate("/");
         }).catch((err) => {
-            console.log(err);
+            console.log(err.response.data);
         })
     };
 

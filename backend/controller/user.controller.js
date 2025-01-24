@@ -14,6 +14,7 @@ export const createUserController = async(req,res)=>{
     try{
         const user = await userServices.createUser(req.body);
         const token = await user.generateJWT();
+        delete user._doc.password;
         res.status(201).json({user,token});
     }catch(err){
         res.status(400).send({error:err.message});
@@ -40,6 +41,7 @@ export const loginUserController = async(req,res)=>{
             return res.status(401).json({error:'Invalid email or password'});
         }
         const token = await user.generateJWT();
+        delete user._doc.password;
         res.status(200).json({user,token});
     }catch(err){
         res.status(403).send(err.message);

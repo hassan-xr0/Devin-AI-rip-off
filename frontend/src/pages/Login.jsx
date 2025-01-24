@@ -8,17 +8,17 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const submitHandler = e => {
+  const submitHandler = (e) => {
     e.preventDefault();
-    axios.post(
-      "/login",
-      (email, password).then((res) => {
+    axios
+      .post("/user/login", { email, password })
+      .then((res) => {
         console.log(res.data);
         navigate("/");
-      }).catch((err) => {
-        console.log(err);
       })
-    );
+      .catch((err) => {
+        console.log(err.response.data);
+      });
   };
   return (
     <div className="h-screen w-screen flex  justify-center items-center">
@@ -27,19 +27,22 @@ const Login = () => {
           <h1 className="text-4xl font-semibold text-neutral-800 pt-2 mb-10 md:-16">
             Login
           </h1>
-          <form onSubmit={submitHandler} className="flex flex-col gap-3  min-w-[22vw]">
+          <form
+            onSubmit={submitHandler}
+            className="flex flex-col gap-3  min-w-[22vw]"
+          >
             <label htmlFor="">Email</label>
             <input
-            onChange={e=>setEmail(e.target.value)}
-            value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
               type="text"
               placeholder="Email"
               className="bg-zinc-100  rounded-md p-4 "
             />
             <label htmlFor="">Password</label>
             <input
-            onChange={e=>setPassword(e.target.value)}
-            value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
               type="password"
               placeholder="Password"
               className="bg-zinc-100 rounded-md p-4 "
