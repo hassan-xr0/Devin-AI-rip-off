@@ -7,7 +7,7 @@ import { UserProvider } from "./context/UserContext";
 
 const App = () => {
   return (
-    <div className="bg-blue-950 min-h-screen min-w-screen">
+    <div className="bg-zinc-800 text-neutral-300 min-h-screen min-w-screen">
       <UserProvider>
       <Routes>
         <Route path="/" element={<Home />} />
