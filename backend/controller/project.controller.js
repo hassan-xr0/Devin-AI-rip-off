@@ -1,7 +1,6 @@
 import { validationResult } from "express-validator";
-import projectModel from "../models/project.model";
-import userModel from "../models/user.model";
-import projectService from "../services/project.service";
+import userModel from "../models/user.model.js";
+import * as projectService from "../services/project.service.js";
 
 
 export const createPorjectController = async (req, res) => {
@@ -13,7 +12,7 @@ export const createPorjectController = async (req, res) => {
         const { name } = req.body;
         const loggedInUser = await userModel.findOne({ email: req.user.email })
         const userId = loggedInUser._id
-        const newProject = await projectService.createProject({ user, userId })
+        const newProject = await projectService.createProject({ name, userId })
 
         res.status(201).json(newProject)
     }
