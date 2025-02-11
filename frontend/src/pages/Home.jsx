@@ -1,13 +1,22 @@
 import React, { useContext, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import add from "../assets/add.svg";
+import axios from "../config/axios";
+
 
 const Home = () => {
   const { user } = useContext(UserContext);
   const [isModal, setIsModal] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  
   const createProject = (e)=>{
     e.preventDefault()
-    console.log('Project created !')
+    console.log(projectName)
+    axios.post("/projects/create", {name:projectName}).then((res)=>{console.log(res.data)
+      setIsModal(false)
+      setProjectName("")
+    }).catch((err)=>{console.log(err)})
+
   }
 
   return (
@@ -23,15 +32,17 @@ const Home = () => {
               <input
                 type="text"
                 placeholder="Name"
-                className="w-full p-2 rounded-md bg-[#dadada]"
+                value={projectName}
+                onChange={(e)=>{setProjectName(e.target.value)}}
+                className="w-full p-2 rounded-md bg-[#dadada] text-black"
                 required
               />
-            </form>
-            <div className="flex gap-2 justify-end">
-              <button className="bg-zinc-900  px-4 py-2 rounded-md w-[30%]">
+               <div className="flex gap-2 justify-end">
+              <button type="submit" className="bg-zinc-900  px-4 py-2 rounded-md w-[30%]">
                 Create
               </button>
               <button
+              type="button"
                 className="bg- text-black px-4 py-2  border-black border-2 rounded-md w-[30%]"
                 onClick={() => {
                   setIsModal(false);
@@ -39,7 +50,9 @@ const Home = () => {
               >
                 Cancel
               </button>
-            </div>
+            </div>  
+            </form>
+           
           </div>
         </div>
       )}
