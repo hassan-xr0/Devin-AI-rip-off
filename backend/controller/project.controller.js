@@ -44,10 +44,16 @@ export const addUserToProject = async (req, res) => {
     }
     try {
         const { projectId, users } = req.body
+        const loggedInUser = await userModel.findOne({ email: req.user.email })
+        const userId = loggedInUser._id
+        const project = await projectService.addUserToProject({ projectId, userId, users })
+
+        return res.status(200).json({project})
     }
-    catch (error) {
-        console.log(error)
-        res.status(400).json(error.message)
+
+    catch (err) {
+        console.log(err)
+        res.status(400).json({error:err.message})
     }
 
 }
