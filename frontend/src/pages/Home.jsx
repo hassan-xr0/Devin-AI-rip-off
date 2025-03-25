@@ -3,7 +3,7 @@ import { UserContext } from "../context/UserContext";
 import add from "../assets/add.svg";
 import axios from "../config/axios";
 import users from "../assets/user-3-fill.svg";
-import arrow from "../assets/information-line.svg";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { user } = useContext(UserContext);
@@ -11,6 +11,8 @@ const Home = () => {
   const [projectName, setProjectName] = useState("");
 
   const [projects, setProjects] = useState([]);
+
+  const navigate = useNavigate();
 
   const createProject = (e) => {
     e.preventDefault();
@@ -81,7 +83,7 @@ const Home = () => {
       )}
       <div className="projects p-4">
         <button
-          className="p-4 rounded-md bg-[#eeee] text-black flex items-center gap-2"
+          className="p-4 rounded-md bg-[#fffe] text-black flex items-center gap-2"
           onClick={() => {
             setIsModal(true);
           }}
@@ -94,26 +96,22 @@ const Home = () => {
       {projects.map((project, index) => {
           return (
             <div
+            onClick={() => {
+              
+              navigate(`/project`, {state: {project}})
+            }}
               key={index}
-              className="min-w-[230px] p-6 bg-[#ffff] text-black border border-gray-200 rounded-lg   hover:shadow-neutral-600 hover:shadow-xl transition-all duration-500"
+              className="min-w-[240px] p-6 bg-[#fff] text-black border border-gray-200 rounded-lg   hover:bg-[#fffdf6]  transition-all duration-500"
             >
               <div className=" flex flex-col justify-between ">
-                <h5 className="mb-2 text-lg font-medium tracking-tight">
+                <h5 className="mb-2 text-lg font-medium tracking-tight capitalize">
                   {project.name}
                 </h5>
                 <div className=" flex items-center gap-1">
                   <img src={users} className="w-4" />
-                  <p className="text-sm">Collaborators: {project.users.length}</p>
+                  <p className="text-sm font-normal">Collaborators: {project.users.length}</p>
                 </div>
               </div>
-
-              <a
-                href="#"
-                className="inline-flex gap-2 items-center mt-2 px-3 py-2 text-sm font-medium text-center text-[#eeee] bg-black rounded-lg hover:bg-zinc-800 focus:ring-4 focus:outline-none focus:ring-zinc-300"
-              >
-                <p>Details</p>
-             <img src={arrow} className="w-4 invert" />
-              </a>
             </div>
           );
         })}

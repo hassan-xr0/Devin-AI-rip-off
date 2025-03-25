@@ -28,8 +28,8 @@ const Login = () => {
   return (
     <div className="h-screen w-screen flex  justify-center items-center">
       <div className="pb-16 text- flex flex-col justify-center items-center">
-        <div className=" bg-white px-10 py-14  rounded-lg shadow-md  m-auto cursor-pointer ">
-          <h1 className="text-4xl font-semibold text-neutral-800 pt-2 mb-10 md:-16">
+        <div className=" bg-[#fcfaf2] px-10 py-14  rounded-lg shadow-md  m-auto cursor-pointer ">
+          <h1 className="text-4xl font-semibold pt-2 mb-10 md:-16">
             Login
           </h1>
           <form
