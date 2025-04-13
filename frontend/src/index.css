@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import 'tailwindcss';
-
+/* @import 'tailwindcss'; */
+/* 
 @theme {
     --color-primary: #fff;
     --color-purple: #3f3cbb;
-}
+} */
