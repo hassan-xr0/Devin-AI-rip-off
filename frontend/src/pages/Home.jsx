@@ -44,12 +44,12 @@ const Home = () => {
     <main className="">
       {isModal && (
         <div className="h-screen w-screen backdrop-blur-lg absolute flex justify-center items-center">
-          <div className=" modal bg-white p-4 rounded-md w-[350px] flex flex-col gap-4 min-h-[180px]">
-            <h1 className="font-semibold text-2xl text-zinc-900">
+          <div className=" modal bg-slate-700  text-slate-100 p-4 rounded-md w-[350px] flex flex-col gap-4 min-h-[180px]">
+            <h1 className="font-semibold text-2xl ">
               Create New Project
             </h1>
-            <form onSubmit={createProject} className="space-y-3">
-              <label className="text-black">Project name</label>
+            <form onSubmit={createProject} className="space-y-3 text-slte-900">
+              <label className="">Project name</label>
               <input
                 type="text"
                 placeholder="Name"
@@ -57,19 +57,19 @@ const Home = () => {
                 onChange={(e) => {
                   setProjectName(e.target.value);
                 }}
-                className="w-full p-2 rounded-md bg-[#dadada] text-black"
+                className="w-full p-2 rounded-md  "
                 required
               />
-              <div className="flex gap-2 justify-end">
+              <div className="flex gap-2 text-slate-900 justify-end">
                 <button
                   type="submit"
-                  className="bg-zinc-900  px-4 py-2 rounded-md w-[30%]"
+                  className="bg-slate-100  px-4 py-2 rounded-md w-[30%]"
                 >
                   Create
                 </button>
                 <button
                   type="button"
-                  className="bg- text-black px-4 py-2  border-black border-2 rounded-md w-[30%]"
+                  className="bg-slate-100 text-slate-900  px-4 py-2  border-slate-300 border-2 rounded-md w-[30%]"
                   onClick={() => {
                     setIsModal(false);
                   }}
@@ -81,15 +81,16 @@ const Home = () => {
           </div>
         </div>
       )}
+
       <div className="projects p-4">
         <button
-          className="p-4 rounded-md bg-[#fffe] text-black flex items-center gap-2"
+          className="p-4 rounded-md bg-slate-300 text-slate-900  border-slate-white border-2 flex items-center gap-2"
           onClick={() => {
             setIsModal(true);
           }}
         >
           <span className="font-semibold">Add Project</span>
-          {!isModal && <img src={add} className=" opacity0 w-5" />}
+          {!isModal && <img src={add} className=" w-5" />}
         </button>
 
       <div className=" flex flex-wrap gap-4 mt-4">
@@ -101,7 +102,7 @@ const Home = () => {
               navigate(`/project`, {state: {project}})
             }}
               key={index}
-              className="min-w-[240px] p-6 bg-[#fff] text-black border border-gray-200 rounded-lg   hover:bg-[#fffdf6]  transition-all duration-500"
+              className="min-w-[240px] p-6 bg-slate-300  border border-slate-900 text-slate-900 rounded-lg   hover:bg-slate-100  transition-all duration-500"
             >
               <div className=" flex flex-col justify-between ">
                 <h5 className="mb-2 text-lg font-medium tracking-tight capitalize">

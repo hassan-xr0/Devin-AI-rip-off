@@ -22,12 +22,12 @@ const Register = () => {
     };
 
     return (
-        <div className='h-screen w-screen flex  justify-center items-center'>
+        <div className='bg-slate-900 h-screen w-screen flex  justify-center items-center'>
 
             <div className='pb-16 text- flex flex-col justify-center items-center'>
 
 
-                <div className=' bg-white px-10 py-14 rounded-lg shadow-md  m-auto cursor-pointer '>
+                <div className=' bg-slate-300 px-10 py-14 rounded-lg shadow-md  m-auto cursor-pointer '>
                     <h1 className="text-4xl font-semibold text-neutral-800 pt-2 mb-10 md:-16">Register</h1>
                     <form onSubmit={submitHandler} className="flex flex-col gap-3  min-w-[22vw]">
                         <label htmlFor="">Email</label>
