@@ -57,7 +57,7 @@ const Home = () => {
                 onChange={(e) => {
                   setProjectName(e.target.value);
                 }}
-                className="w-full p-2 rounded-md  "
+                className="w-full text-slate-900  p-2 rounded-md  "
                 required
               />
               <div className="flex gap-2 text-slate-900 justify-end">
