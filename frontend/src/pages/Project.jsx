@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import group from "../assets/group.svg";
 import send from "../assets/send.svg";
-
+import close from '../assets/close.svg'
 import member from "../assets/member.png";
 import arrowback from "../assets/arrowback.svg";
 import menu from "../assets/menu.svg";
@@ -12,23 +12,20 @@ const Project = () => {
   const project = location.state.project;
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
+  const [selectUserModal, setSelectUserModal] = useState(false);
 
-  const [isAddMemberModal, setIsAddMemberModal] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
   
   // Mock users data - replace with your actual users data
   const [users, setUsers] = useState([
-    { id: 1, name: "User 1", email: "user1@example.com" },
-    { id: 2, name: "User 2", email: "user2@example.com" },
-    { id: 3, name: "User 3", email: "user3@example.com" }
+    { id: 1, name: "John Smith", email: "johnsmith@gmail.com" },
+    { id: 2, name: "Emma Wilson", email: "emmaw@yahoo.com" },
+    { id: 3, name: "Michael Chen", email: "mchen@outlook.com" },
+    { id: 4, name: "Sarah Johnson", email: "sarahj@hotmail.com" },
+    { id: 5, name: "David Brown", email: "dbrown@gmail.com" },
+    { id: 6, name: "Lisa Anderson", email: "landerson@yahoo.com" }
   ]);
-
   const navigate = useNavigate();
 
-  const handleUserSelect = (userId) => {
-    setSelectedUserId(userId);
-    setIsAddMemberModal(false);
-  };
 
   return (
     <main className="h-screen ">
@@ -82,6 +79,7 @@ const Project = () => {
                   {project.name}
                 </h1>
               </div>
+              
               <button
                 onClick={() => {
                   setIsMenu(true);
@@ -103,7 +101,10 @@ const Project = () => {
                 <ul className="settings flex-col flex text-base font-semibold">
                   <li 
                     className="border-b-[1px] border-zinc-300 py-3 px-2 flex gap-2 cursor-pointer hover:bg-slate-100"
-                    onClick={() => setIsAddMemberModal(true)}
+                    onClick={() => {
+                      setSelectUserModal(true);
+                      setIsMenu(false);
+                    }}
                   >
                     Add Member
                   </li>
@@ -116,69 +117,53 @@ const Project = () => {
                 </ul>
               </div>
               
-                            </div>
+            </div>
               
               {/* User Selection Modal */}
-              <div className={`absolute bg-white shadow-lg w-[300px] top-[60px] left-[260px] rounded-xl p-4 ${isUserModalOpen ? 'block' : 'hidden'}`}>
+              <div className={`absolute bg-white shadow-xl  w-[320px] top-[230px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"}`}>
+                <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold mb-4">Select User</h2>
-                <div className="max-h-[300px] overflow-y-auto">
+                <img onClick={()=>{setSelectUserModal(false)}} src={close} className="w-5 invert cursor-pointer" alt="" />
+
+                </div>
+                <div className="max-h-[350px] overflow-y-auto">
                   {users.map((user) => (
                     <div
                       key={user.id}
                       onClick={() => {
-                        setSelectedUserId(user.id);
-                        setIsUserModalOpen(false);
                       }}
-                      className="flex items-center gap-3 p-3 hover:bg-slate-100 rounded-lg cursor-pointer transition-all duration-300"
+                      className="flex items-center gap-3 p-3 hover:bg-slate-300 rounded-lg cursor-pointer transition-all duration-300"
                     >
-
-
-
-
-                      ×
-                    </button>
-                  </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {users.map((user) => (
-                      <div
-                        key={user.id}
-                        onClick={() => handleUserSelect(user.id)}
-                        className="p-3 hover:bg-slate-100 cursor-pointer rounded-lg mb-2"
-                      >
-                        <div className="flex items-center gap-3">
-                          <img src={member} className="w-10 h-10 rounded-full" alt="" />
-                          <div>
-                            <h3 className="font-medium">{user.name}</h3>
-                            <p className="text-sm text-gray-500">{user.email}</p>
-                          </div>
+                      <div className="flex items-center gap-3">
+                        <img src={member} className="w-10 h-10 rounded-full" alt="" />
+                        <div>
+                          <h3 className="font-medium">{user.name}</h3>
+                          <p className="text-sm text-gray-500">{user.email}</p>
                         </div>
                       </div>
-
-
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-
-            )}
-
-            {/* ----- member-list ----- */}
+              </div>         
+              
+              
+                 {/* ----- member-list ----- */}
             <div className="flex-grow ">
               <div className="members-list flex gap-2 flex-col mx-3 mt-10">
-                <div className="member flex gap-5  p-2 items-center">
+                {users.map((user)=>(
+                  <div key={user.id} className="member flex gap-5  p-2 items-center">
                   <img src={member} className="w-12 rounded-full" />
                   <div className="">
                     {" "}
                     <p className="text-sm font-medium opacity-60 leading-[10px]">
-                      example@gmail.com
+                      {user.email}
                     </p>
                     <h1 className="text-lg font-semibold opacity-90">
-                      {" "}
-                      username
+                      {user.name}
                     </h1>
                   </div>
                 </div>
+                ))}
               </div>
             </div>
           </div>
