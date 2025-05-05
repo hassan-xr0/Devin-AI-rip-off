@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "../config/axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import group from "../assets/group.svg";
 import send from "../assets/send.svg";
-import close from '../assets/close.svg'
+import close from "../assets/close.svg";
 import member from "../assets/member.png";
 import arrowback from "../assets/arrowback.svg";
 import menu from "../assets/menu.svg";
+
 
 const Project = () => {
   const location = useLocation();
@@ -13,23 +15,29 @@ const Project = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState([]);
 
-  
-  // Mock users data - replace with your actual users data
-  const [users, setUsers] = useState([
-    { id: 1, name: "John Smith", email: "johnsmith@gmail.com" },
-    { id: 2, name: "Emma Wilson", email: "emmaw@yahoo.com" },
-    { id: 3, name: "Michael Chen", email: "mchen@outlook.com" },
-    { id: 4, name: "Sarah Johnson", email: "sarahj@hotmail.com" },
-    { id: 5, name: "David Brown", email: "dbrown@gmail.com" },
-    { id: 6, name: "Lisa Anderson", email: "landerson@yahoo.com" }
-  ]);
+
+  const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
+    useEffect(() => {
+      
+    axios.get('user/all').then(res=>{
+      setUsers(res.data.users)
+    }).catch(err=>{
+      console.log(err)
+    })
+  
+    }, [])
+    
+
+  const handleUserSelection = (user) => {
+    setSelectedUserId([...selectedUserId,user])
+  };
 
   return (
     <main className="h-screen ">
-
       <div className="w-[25vw] flex flex-col h-screen">
         {/* --------- header ------ */}
         <div className="p-4 bg-slate-200 border-b-[1px] border-slate-300 flex justify-between items-center">
@@ -79,7 +87,7 @@ const Project = () => {
                   {project.name}
                 </h1>
               </div>
-              
+
               <button
                 onClick={() => {
                   setIsMenu(true);
@@ -96,10 +104,8 @@ const Project = () => {
                   isMenu ? "flex" : "hidden"
                 }`}
               >
-
-
                 <ul className="settings flex-col flex text-base font-semibold">
-                  <li 
+                  <li
                     className="border-b-[1px] border-zinc-300 py-3 px-2 flex gap-2 cursor-pointer hover:bg-slate-100"
                     onClick={() => {
                       setSelectUserModal(true);
@@ -109,60 +115,75 @@ const Project = () => {
                     Add Member
                   </li>
 
-
-                  <li className="py-3 px-2 flex gap-3 cursor-pointer hover:bg-slate-100">Remove Member</li>
+                  <li className="py-3 px-2 flex gap-3 cursor-pointer hover:bg-slate-100">
+                    Remove Member
+                  </li>
                   <li className="border-t-[1px] border-zinc-300 py-3 px-2 cursor-pointer hover:bg-slate-100">
                     Delete Workspace
                   </li>
                 </ul>
               </div>
-              
             </div>
-              
-              {/* User Selection Modal */}
-              <div className={`absolute bg-white shadow-xl  w-[320px] top-[230px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"}`}>
-                <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold mb-4">Select User</h2>
-                <img onClick={()=>{setSelectUserModal(false)}} src={close} className="w-5 invert cursor-pointer" alt="" />
 
+            {/* User Selection Modal */}
+            {isOpen && (
+              <div
+                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"}`}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold mb-4">Select User</h2>
+                  <img
+                    onClick={() => {
+                      setSelectUserModal(false);
+                    }}
+                    src={close}
+                    className="w-5 invert cursor-pointer"
+                    alt=""
+                  />
                 </div>
                 <div className="max-h-[350px] overflow-y-auto">
                   {users.map((user) => (
                     <div
-                      key={user.id}
-                      onClick={() => {
-                      }}
-                      className="flex items-center gap-3 p-3 hover:bg-slate-300 rounded-lg cursor-pointer transition-all duration-300"
+                      key={user._id}
+                      onClick={() => { handleUserSelection(user._id);}}
+                      className={`flex items-center gap-3 p-2 m-1 hover:bg-slate-300 rounded-lg cursor-pointer transition-all duration-300 ${selectedUserId.includes(user._id) ? "bg-slate-300" : ""}`}
                     >
                       <div className="flex items-center gap-3">
-                        <img src={member} className="w-10 h-10 rounded-full" alt="" />
+                        <img
+                          src={member}
+                          className="w-10 h-10 rounded-full"
+                          alt=""
+                        />
                         <div>
-                          <h3 className="font-medium">{user.name}</h3>
-                          <p className="text-sm text-gray-500">{user.email}</p>
+
+                          <h1 className="text-medium text-gray-900">{user.email}</h1>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-              </div>         
-              
-              
-                 {/* ----- member-list ----- */}
+                <div className="flex justify-end mt-4">
+                  <button className="py-3 px-7 rounded-lg text-white bg-slate-950">Add</button>
+                </div>
+              </div>
+            )}
+
+            {/* ----- member-list ----- */}
             <div className="flex-grow ">
               <div className="members-list flex gap-2 flex-col mx-3 mt-10">
-                {users.map((user)=>(
-                  <div key={user.id} className="member flex gap-5  p-2 items-center">
-                  <img src={member} className="w-12 rounded-full" />
-                  <div className="">
-                    {" "}
-                    <p className="text-sm font-medium opacity-60 leading-[10px]">
-                      {user.email}
-                    </p>
-                    <h1 className="text-lg font-semibold opacity-90">
-                      {user.name}
-                    </h1>
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="member flex gap-5  p-2 items-center"
+                  >
+                    <img src={member} className="w-12 rounded-full" />
+                    <div className="">
+                      {" "}
+                      <h1 className="text-xl font-semibold opacity-90">
+                        {user.email}
+                      </h1>
+                    </div>
                   </div>
-                </div>
                 ))}
               </div>
             </div>
