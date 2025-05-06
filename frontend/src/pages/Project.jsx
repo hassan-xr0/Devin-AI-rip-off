@@ -8,7 +8,6 @@ import member from "../assets/member.png";
 import arrowback from "../assets/arrowback.svg";
 import menu from "../assets/menu.svg";
 
-
 const Project = () => {
   const location = useLocation();
   const project = location.state.project;
@@ -17,24 +16,48 @@ const Project = () => {
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
 
+  console.log(project);
 
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
-    useEffect(() => {
-      
-    axios.get('user/all').then(res=>{
-      setUsers(res.data.users)
-    }).catch(err=>{
-      console.log(err)
-    })
-  
-    }, [])
-    
-
-  const handleUserSelection = (user) => {
-    setSelectedUserId([...selectedUserId,user])
+  const handleUserSelection = (id) => {
+    setSelectedUserId((prevSelectedUserId) => {
+      const newSelectedUserId = new Set(prevSelectedUserId);
+      if (newSelectedUserId.has(id)) {
+        newSelectedUserId.delete(id);
+      } else {
+        newSelectedUserId.add(id);
+      }
+      console.log(newSelectedUserId);
+      return newSelectedUserId;
+    });
   };
+
+  function addMember(){
+    axios.put("/projects/add-user", {
+        projectId: project._id,
+        users: Array.from(selectedUserId),
+      })
+      .then((res) => {
+        setSelectUserModal(false)
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    axios
+      .get("user/all")
+      .then((res) => {
+        setUsers(res.data.users);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   return (
     <main className="h-screen ">
@@ -128,7 +151,9 @@ const Project = () => {
             {/* User Selection Modal */}
             {isOpen && (
               <div
-                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"}`}
+                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${
+                  selectUserModal ? "block" : "hidden"
+                }`}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold mb-4">Select User</h2>
@@ -145,8 +170,14 @@ const Project = () => {
                   {users.map((user) => (
                     <div
                       key={user._id}
-                      onClick={() => { handleUserSelection(user._id);}}
-                      className={`flex items-center gap-3 p-2 m-1 hover:bg-slate-300 rounded-lg cursor-pointer transition-all duration-300 ${selectedUserId.includes(user._id) ? "bg-slate-300" : ""}`}
+                      onClick={() => {
+                        handleUserSelection(user._id);
+                      }}
+                      className={`flex items-center gap-3 p-2 m-1 active:bg-slate-500 rounded-lg cursor-pointer transition-all duration-300 ${
+                        Array.from(selectedUserId).indexOf(user._id) != -1
+                          ? "bg-slate-300"
+                          : ""
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -155,15 +186,18 @@ const Project = () => {
                           alt=""
                         />
                         <div>
-
-                          <h1 className="text-medium text-gray-900">{user.email}</h1>
+                          <h1 className="text-medium text-gray-900">
+                            {user.email}
+                          </h1>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="flex justify-end mt-4">
-                  <button className="py-3 px-7 rounded-lg text-white bg-slate-950">Add</button>
+                  <button onClick={addMember} className="py-3 px-7 rounded-lg text-white bg-slate-950">
+                    Add
+                  </button>
                 </div>
               </div>
             )}
