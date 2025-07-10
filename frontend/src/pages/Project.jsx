@@ -10,14 +10,13 @@ import menu from "../assets/menu.svg";
 
 const Project = () => {
   const location = useLocation();
-  const project = location.state.project;
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
 
-  console.log(project);
-
+  // console.log(project);
+  const [project, setProject] = useState(location.state.project);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
@@ -36,7 +35,7 @@ const Project = () => {
 
   function addMember(){
     axios.put("/projects/add-user", {
-        projectId: project._id,
+        projectId: location.state.project._id,
         users: Array.from(selectedUserId),
       })
       .then((res) => {
@@ -49,8 +48,11 @@ const Project = () => {
   };
 
   useEffect(() => {
-    axios
-      .get("user/all")
+    axios.get(`/projects/get-project/${location.state.project._id}`).then((res) => {
+      console.log(res.data);
+      setProject(res.data.project);
+    });
+    axios.get("user/all")
       .then((res) => {
         setUsers(res.data.users);
       })
@@ -75,7 +77,7 @@ const Project = () => {
               <img src={arrowback} className="w-5 invert " alt="" />
             </button>
 
-            <h1 className=" text-2xl capitalize font-medium">{project.name}</h1>
+            <h1 className=" text-2xl capitalize font-medium">{location.state.project.name}</h1>
           </div>
           <button
             onClick={() => {
@@ -107,7 +109,7 @@ const Project = () => {
                 </button>
 
                 <h1 className=" text-2xl capitalize font-medium">
-                  {project.name}
+                  {location.state.project.name}
                 </h1>
               </div>
 
@@ -205,7 +207,7 @@ const Project = () => {
             {/* ----- member-list ----- */}
             <div className="flex-grow ">
               <div className="members-list flex gap-2 flex-col mx-3 mt-10">
-                {users.map((user) => (
+                {project.users && project.users.map((user) => (
                   <div
                     key={user.id}
                     className="member flex gap-5  p-2 items-center"
