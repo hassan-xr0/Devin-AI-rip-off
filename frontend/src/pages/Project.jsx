@@ -1,22 +1,27 @@
-import React, { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "../config/axios";
+import { initializeSocket , receiiveMessage, sendMessage} from "../config/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 import group from "../assets/group.svg";
-import send from "../assets/send.svg";
+import sendimg from "../assets/send.svg";
 import close from "../assets/close.svg";
 import member from "../assets/member.png";
 import arrowback from "../assets/arrowback.svg";
 import menu from "../assets/menu.svg";
+import { UserContext } from "../context/UserContext";
 
 const Project = () => {
+
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
+  const [message, setMessage] = useState("");
+  const {user} = useContext(UserContext);
 
   // console.log(project);
-  const [project, setProject] = useState(location.state.project);
+  const [ project, setProject ] = useState(location.state.project)
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
@@ -33,11 +38,11 @@ const Project = () => {
     });
   };
 
-  function addMember(){
+  function addMember() {
     axios.put("/projects/add-user", {
-        projectId: location.state.project._id,
-        users: Array.from(selectedUserId),
-      })
+      projectId: location.state.project._id,
+      users: Array.from(selectedUserId),
+    })
       .then((res) => {
         setSelectUserModal(false)
         console.log(res.data);
@@ -46,19 +51,38 @@ const Project = () => {
         console.log(err);
       });
   };
+  
+  function send() {
+    sendMessage('project-message', {
+      message,
+      sender: user._id,
+    })
+    setMessage('')
+  }
 
   useEffect(() => {
-    axios.get(`/projects/get-project/${location.state.project._id}`).then((res) => {
-      console.log(res.data);
-      setProject(res.data.project);
+    
+    console.log('connected')
+    initializeSocket(project._id);
+    
+    receiiveMessage('project-message', (data) => {
+      console.log(data)
+    })
+    
+    axios.get(`/projects/get-project/${location.state.project._id}`).then(res => {
+      
+      setProject(res.data.project)
     });
-    axios.get("user/all")
-      .then((res) => {
-        setUsers(res.data.users);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+     
+    axios.get('user/all').then(res => {
+      
+      setUsers(res.data.users)
+      
+    }).catch(err => {
+      
+      console.log(err)
+      
+    })
   }, []);
 
   return (
@@ -91,9 +115,8 @@ const Project = () => {
 
           {/*----- member-section ---- */}
           <div
-            className={`flex-col flex bg-slate-200 absolute h-screen z-10 w-[25vw] -left-[480px] top-0 duration-500 transition-all ${
-              isOpen ? "translate-x-[480px]" : ""
-            }`}
+            className={`flex-col flex bg-slate-200 absolute h-screen z-10 w-[25vw] -left-[480px] top-0 duration-500 transition-all ${isOpen ? "translate-x-[480px]" : ""
+              }`}
           >
             {/* --- member-header -- */}
             <div className="p-4 border-b-[1px] border-slate-300 flex justify-between items-center">
@@ -125,9 +148,8 @@ const Project = () => {
 
               {/* ----- setting-modal ----- */}
               <div
-                className={`absolute bg-white shadow-lg max-w-[202px] top-[20px] left-[260px] rounded-xl  ${
-                  isMenu ? "flex" : "hidden"
-                }`}
+                className={`absolute bg-white shadow-lg max-w-[202px] top-[20px] left-[260px] rounded-xl  ${isMenu ? "flex" : "hidden"
+                  }`}
               >
                 <ul className="settings flex-col flex text-base font-semibold">
                   <li
@@ -153,9 +175,8 @@ const Project = () => {
             {/* User Selection Modal */}
             {isOpen && (
               <div
-                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${
-                  selectUserModal ? "block" : "hidden"
-                }`}
+                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"
+                  }`}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold mb-4">Select User</h2>
@@ -175,11 +196,10 @@ const Project = () => {
                       onClick={() => {
                         handleUserSelection(user._id);
                       }}
-                      className={`flex items-center gap-3 p-2 m-1 active:bg-slate-500 rounded-lg cursor-pointer transition-all duration-300 ${
-                        Array.from(selectedUserId).indexOf(user._id) != -1
+                      className={`flex items-center gap-3 p-2 m-1 active:bg-slate-500 rounded-lg cursor-pointer transition-all duration-300 ${Array.from(selectedUserId).indexOf(user._id) != -1
                           ? "bg-slate-300"
                           : ""
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -245,12 +265,14 @@ const Project = () => {
           {/* ---input feild --- */}
           <div className="inputflex bg-slate-200 border-t-zinc-400 border-[1px]   w-full  justify-between items-center px-3 py-1   ">
             <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               type="text"
               placeholder="Message"
               className="w-[90%] h-full py-3 px-3 bg-transparent text-lg  text-[#3d3b39] outline-none"
             />
-            <button className="w-[10%] m-auto hover:opacity-60 duration-300 transition-all">
-              <img src={send} className="w-5  " alt="" />
+            <button onClick={send} className="w-[10%] m-auto hover:opacity-60 duration-300 transition-all">
+              <img src={sendimg} className="w-5  " alt="" />
             </button>
           </div>
         </div>
