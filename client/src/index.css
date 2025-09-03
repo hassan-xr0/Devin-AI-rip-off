@@ -8,3 +8,7 @@
     --color-primary: #fff;
     --color-purple: #3f3cbb;
 } */
+
+.messages-box::-webkit-scrollbar{
+    display: none;
+}

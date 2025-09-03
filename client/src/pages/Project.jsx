@@ -1,6 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { createRef, useContext, useEffect, useState } from "react";
 import axios from "../config/axios";
-import { initializeSocket , receiiveMessage, sendMessage} from "../config/socket";
+import {
+  initializeSocket,
+  receiiveMessage,
+  sendMessage,
+} from "../config/socket";
 import { useLocation, useNavigate } from "react-router-dom";
 import group from "../assets/group.svg";
 import sendimg from "../assets/send.svg";
@@ -11,17 +15,18 @@ import menu from "../assets/menu.svg";
 import { UserContext } from "../context/UserContext";
 
 const Project = () => {
-
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [selectUserModal, setSelectUserModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [message, setMessage] = useState("");
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
+  const messageRef = createRef();
+  const [messages, setMessages] = useState([]);
 
   // console.log(project);
-  const [ project, setProject ] = useState(location.state.project)
+  const [project, setProject] = useState(location.state.project);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
 
@@ -39,52 +44,61 @@ const Project = () => {
   };
 
   function addMember() {
-    axios.put("/projects/add-user", {
-      projectId: location.state.project._id,
-      users: Array.from(selectedUserId),
-    })
+    axios
+      .put("/projects/add-user", {
+        projectId: location.state.project._id,
+        users: Array.from(selectedUserId),
+      })
       .then((res) => {
-        setSelectUserModal(false)
+        setSelectUserModal(false);
         console.log(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
-  };
-  
+  }
+
   function send() {
-    sendMessage('project-message', {
+    sendMessage("project-message", {
       message,
       sender: user._id,
-    })
-    setMessage('')
+    });
+    setMessages(prevMsg => [...prevMsg,{sender: user, message}]);
+    scrollToBottom();
+    setMessage("");
   }
 
   useEffect(() => {
-    
-    console.log('connected')
+    console.log("connected");
     initializeSocket(project._id);
-    
-    receiiveMessage('project-message', (data) => {
-      console.log(data)
-    })
-    
-    axios.get(`/projects/get-project/${location.state.project._id}`).then(res => {
-      
-      setProject(res.data.project)
+
+    receiiveMessage("project-message", (data) => {
+      console.log(data);
+      setMessages(prevMsg=>[...prevMsg ,data]);
+      scrollToBottom();
     });
-     
-    axios.get('user/all').then(res => {
-      
-      setUsers(res.data.users)
-      
-    }).catch(err => {
-      
-      console.log(err)
-      
-    })
+
+    axios
+      .get(`/projects/get-project/${location.state.project._id}`)
+      .then((res) => {
+        setProject(res.data.project);
+      });
+
+    axios
+      .get("user/all")
+      .then((res) => {
+        setUsers(res.data.users);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
+
+     function scrollToBottom() {
+        messageRef.current.scrollTop = messageRef.current.scrollHeight
+    }
+console.log(messages)
   return (
     <main className="h-screen ">
       <div className="w-[25vw] flex flex-col h-screen">
@@ -101,7 +115,9 @@ const Project = () => {
               <img src={arrowback} className="w-5 invert " alt="" />
             </button>
 
-            <h1 className=" text-2xl capitalize font-medium">{location.state.project.name}</h1>
+            <h1 className=" text-2xl capitalize font-medium">
+              {location.state.project.name}
+            </h1>
           </div>
           <button
             onClick={() => {
@@ -115,8 +131,9 @@ const Project = () => {
 
           {/*----- member-section ---- */}
           <div
-            className={`flex-col flex bg-slate-200 absolute h-screen z-10 w-[25vw] -left-[480px] top-0 duration-500 transition-all ${isOpen ? "translate-x-[480px]" : ""
-              }`}
+            className={`flex-col flex bg-slate-200 absolute h-screen z-10 w-[25vw] -left-[480px] top-0 duration-500 transition-all ${
+              isOpen ? "translate-x-[480px]" : ""
+            }`}
           >
             {/* --- member-header -- */}
             <div className="p-4 border-b-[1px] border-slate-300 flex justify-between items-center">
@@ -148,8 +165,9 @@ const Project = () => {
 
               {/* ----- setting-modal ----- */}
               <div
-                className={`absolute bg-white shadow-lg max-w-[202px] top-[20px] left-[260px] rounded-xl  ${isMenu ? "flex" : "hidden"
-                  }`}
+                className={`absolute bg-white shadow-lg max-w-[202px] top-[20px] left-[260px] rounded-xl  ${
+                  isMenu ? "flex" : "hidden"
+                }`}
               >
                 <ul className="settings flex-col flex text-base font-semibold">
                   <li
@@ -175,8 +193,9 @@ const Project = () => {
             {/* User Selection Modal */}
             {isOpen && (
               <div
-                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${selectUserModal ? "block" : "hidden"
-                  }`}
+                className={`absolute bg-white shadow-xl  w-[350px] top-[150px] left-[720px] rounded-xl p-4 ${
+                  selectUserModal ? "block" : "hidden"
+                }`}
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold mb-4">Select User</h2>
@@ -196,10 +215,11 @@ const Project = () => {
                       onClick={() => {
                         handleUserSelection(user._id);
                       }}
-                      className={`flex items-center gap-3 p-2 m-1 active:bg-slate-500 rounded-lg cursor-pointer transition-all duration-300 ${Array.from(selectedUserId).indexOf(user._id) != -1
+                      className={`flex items-center gap-3 p-2 m-1 active:bg-slate-500 rounded-lg cursor-pointer transition-all duration-300 ${
+                        Array.from(selectedUserId).indexOf(user._id) != -1
                           ? "bg-slate-300"
                           : ""
-                        }`}
+                      }`}
                     >
                       <div className="flex items-center gap-3">
                         <img
@@ -217,7 +237,10 @@ const Project = () => {
                   ))}
                 </div>
                 <div className="flex justify-end mt-4">
-                  <button onClick={addMember} className="py-3 px-7 rounded-lg text-white bg-slate-950">
+                  <button
+                    onClick={addMember}
+                    className="py-3 px-7 rounded-lg text-white bg-slate-950"
+                  >
                     Add
                   </button>
                 </div>
@@ -227,40 +250,39 @@ const Project = () => {
             {/* ----- member-list ----- */}
             <div className="flex-grow ">
               <div className="members-list flex gap-2 flex-col mx-3 mt-10">
-                {project.users && project.users.map((user) => (
-                  <div
-                    key={user.id}
-                    className="member flex gap-5  p-2 items-center"
-                  >
-                    <img src={member} className="w-12 rounded-full" />
-                    <div className="">
-                      {" "}
-                      <h1 className="text-xl font-semibold opacity-90">
-                        {user.email}
-                      </h1>
+                {project.users &&
+                  project.users.map((user) => (
+                    <div
+                      key={user.id}
+                      className="member flex gap-5  p-2 items-center"
+                    >
+                      <img src={member} className="w-12 rounded-full" />
+                      <div className="">
+                        {" "}
+                        <h1 className="text-xl font-semibold opacity-90">
+                          {user.email}
+                        </h1>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>
         </div>
 
         {/*---- message area ----- */}
-        <div className=" message-area bg-[url(src/assets/chat-bg.png)] bg-contain flex-grow flex flex-col">
+        <div className=" message-area bg-[url(src/assets/chat-bg.png)] bg-contain flex-gow flex flex-col">
           {/* ---messages --- */}
-          <div className="messages flex-grow">
-            <div className="incoming-msg bg-slate-400 text-slate-950 p-3 mb-3 mt-7 ml-2 max-w-[75%] rounded-md mr-auto">
-              <p className="text-sm opacity-75">email@example.com</p>
-              <p className="text-base">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Ducimus, quo!
-              </p>
+          <div ref={messageRef} className="messages-box flex-grow overflow-y-scroll scroll-smooth h-[83vh]">
+           
+           {messages.map((msg, index) => (
+            // console.log(msg),
+            <div key={index} className={`p-3 rounded-md max-w-[75%] ${msg.sender._id == user._id ? "bg-slate-300 mr-2 mt-2 mb-2 ml-auto" : "bg-slate-400 mr-auto text-slate-950 mb-2 mt-2  ml-2"}`}>
+              <p className='text-sm opacity-75'>{msg.sender.email}</p>
+              <p className='text-base'>{msg.message}</p>
             </div>
-            <div className="your-msg bg-slate-300  p-3 mr-2 max-w-[75%] rounded-md ml-auto">
-              <p className="text-sm opacity-75 ">email@example.com</p>
-              <p className="text-base">Lorem ipsum dolor sit !</p>
-            </div>
+           ))}
+
           </div>
           {/* ---input feild --- */}
           <div className="inputflex bg-slate-200 border-t-zinc-400 border-[1px]   w-full  justify-between items-center px-3 py-1   ">
@@ -271,7 +293,10 @@ const Project = () => {
               placeholder="Message"
               className="w-[90%] h-full py-3 px-3 bg-transparent text-lg  text-[#3d3b39] outline-none"
             />
-            <button onClick={send} className="w-[10%] m-auto hover:opacity-60 duration-300 transition-all">
+            <button
+              onClick={send}
+              className="w-[10%] m-auto hover:opacity-60 duration-300 transition-all"
+            >
               <img src={sendimg} className="w-5  " alt="" />
             </button>
           </div>
