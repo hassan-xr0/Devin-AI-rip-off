@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
           message: respones,
           sender: {
             id: "ai",
-            email: "AI",
+            email: "ai",
           },
         });
       }

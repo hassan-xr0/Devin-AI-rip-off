@@ -1,4 +1,4 @@
-import { createRef, useContext, useEffect, useState } from "react";
+import { createRef, useContext, useEffect, useRef, useState } from "react";
 import axios from "../config/axios";
 import {
   initializeSocket,
@@ -12,8 +12,23 @@ import close from "../assets/close.svg";
 import member from "../assets/member.png";
 import arrowback from "../assets/arrowback.svg";
 import menu from "../assets/menu.svg";
+import Markdown from "react-markdown";
 import { UserContext } from "../context/UserContext";
 
+function SyntaxHighlightedCode(props) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current && props.className?.includes("lang-") && window.hljs) {
+      window.hljs.highlightElement(ref.current);
+
+      // hljs won't reprocess the element unless this attribute is removed
+      ref.current.removeAttribute("data-highlighted");
+    }
+  }, [props.className, props.children]);
+
+  return <code {...props} ref={ref} />;
+}
 const Project = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
@@ -63,9 +78,28 @@ const Project = () => {
       message,
       sender: user._id,
     });
-    setMessages(prevMsg => [...prevMsg,{sender: user, message}]);
-    scrollToBottom();
+    setMessages((prevMsg) => [...prevMsg, { sender: user, message }]);
+    // scrollToBottom();
     setMessage("");
+  }
+
+  function WriteAiMessage(message) {
+    // console.log(message)
+    const messageObject = message;
+    
+
+    return (
+      <div className="overflow-auto bg-slate-950 text-white rounded-sm p-2">
+        <Markdown
+          children={messageObject}
+          options={{
+            overrides: {
+              code: SyntaxHighlightedCode,
+            },
+          }}
+        />
+      </div>
+    );
   }
 
   useEffect(() => {
@@ -73,9 +107,9 @@ const Project = () => {
     initializeSocket(project._id);
 
     receiiveMessage("project-message", (data) => {
-      console.log(data);
-      setMessages(prevMsg=>[...prevMsg ,data]);
-      scrollToBottom();
+      // console.log(data);
+      setMessages((prevMsg) => [...prevMsg, data]);
+      // scrollToBottom();
     });
 
     axios
@@ -94,14 +128,13 @@ const Project = () => {
       });
   }, []);
 
-
-     function scrollToBottom() {
-        messageRef.current.scrollTop = messageRef.current.scrollHeight
-    }
-console.log(messages)
+  function scrollToBottom() {
+    messageRef.current.scrollTop = messageRef.current.scrollHeight;
+  }
+  // console.log(messages);
   return (
     <main className="h-screen ">
-      <div className="w-[25vw] flex flex-col h-screen">
+      <div className="w-[30vw] flex flex-col h-screen">
         {/* --------- header ------ */}
         <div className="p-4 bg-slate-200 border-b-[1px] border-slate-300 flex justify-between items-center">
           <div className="flex items-center gap-5">
@@ -273,16 +306,31 @@ console.log(messages)
         {/*---- message area ----- */}
         <div className=" message-area bg-[url(src/assets/chat-bg.png)] bg-contain flex-gow flex flex-col">
           {/* ---messages --- */}
-          <div ref={messageRef} className="messages-box flex-grow overflow-y-scroll scroll-smooth h-[83vh]">
-           
-           {messages.map((msg, index) => (
-            // console.log(msg),
-            <div key={index} className={`p-3 rounded-md max-w-[75%] ${msg.sender._id == user._id ? "bg-slate-300 mr-2 mt-2 mb-2 ml-auto" : "bg-slate-400 mr-auto text-slate-950 mb-2 mt-2  ml-2"}`}>
-              <p className='text-sm opacity-75'>{msg.sender.email}</p>
-              <p className='text-base'>{msg.message}</p>
-            </div>
-           ))}
-
+          <div
+            ref={messageRef}
+            className="messages-box flex-grow overflow-y-scroll scroll-smooth h-[83vh]"
+          >
+            {messages.map((msg, index) => (
+              // console.log(msg),
+              <div
+                key={index}
+                className={`my-2 ${
+                  msg.sender._id === "ai" ? "max-w-96" : "max-w-52"
+                } ${
+                  msg.sender._id == user._id.toString() && "ml-auto"
+                }  message flex flex-col p-2 bg-slate-300 w-fit rounded-md`}
+              >
+                <small className="opacity-65 text-xs">{msg.sender.email}</small>
+                <div className="text-sm">
+                  {
+                  msg.sender.email === "ai" ? (
+                    WriteAiMessage(msg.message)
+                  ) : (
+                    <p>{msg.message}</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
           {/* ---input feild --- */}
           <div className="inputflex bg-slate-200 border-t-zinc-400 border-[1px]   w-full  justify-between items-center px-3 py-1   ">
